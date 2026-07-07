@@ -4,46 +4,57 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"strings"
+
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/block"
 )
 
 // CalculateBlockHash computes the SHA-256 hash of a block using
-// a deterministic serialization of its fields.
-func CalculateBlockHash(b *block.Block) (string, error) {
-	data, err := serializeBlock(b)
-	if err != nil {
-		return "", err
-	}
+// deterministic serialization of block fields excluding the Hash field.
+func CalculateBlockHash(b *block.Block) string {
+	data := serializeBlock(b)
 
 	hash := sha256.Sum256(data)
-	return hex.EncodeToString(hash[:]), nil
+
+	return hex.EncodeToString(hash[:])
 }
 
-// serializeBlock converts a block into a deterministic byte sequence.
-// The Hash field is intentionally excluded.
-func serializeBlock(b *block.Block) ([]byte, error) {
-	var data string
+// serializeBlock converts block fields into a deterministic byte sequence.
+//
+// Hashing order:
+// 1. Index
+// 2. Timestamp (Unix seconds)
+// 3. Transactions (sender, recipient, amount)
+// 4. Previous hash
+// 5. Nonce
+//
+// The Hash field is intentionally excluded because it is the value being calculated.
+func serializeBlock(b *block.Block) []byte {
+	var builder strings.Builder
 
-	// 1. Index
-	data += fmt.Sprintf("%d|", b.Index)
+	// Block index
+	fmt.Fprintf(&builder, "%d|", b.Index)
 
-	// 2. Timestamp (Unix for determinism)
-	data += fmt.Sprintf("%d|", b.Timestamp.Unix())
+	// Timestamp
+	fmt.Fprintf(&builder, "%d|", b.Timestamp.Unix())
 
-	// 3. Transactions
+	// Transactions
 	for _, tx := range b.Transactions {
-		data += fmt.Sprintf("%s|%s|%f|",
+		fmt.Fprintf(
+			&builder,
+			"%s|%s|%.8f|",
 			tx.Sender,
 			tx.Recipient,
 			tx.Amount,
 		)
 	}
 
-	// 4. Previous Hash
-	data += b.PreviousHash + "|"
+	// Previous block hash
+	builder.WriteString(b.PreviousHash)
+	builder.WriteString("|")
 
-	// 5. Nonce
-	data += fmt.Sprintf("%d", b.Nonce)
+	// Proof-of-work nonce
+	fmt.Fprintf(&builder, "%d", b.Nonce)
 
-	return []byte(data), nil
+	return []byte(builder.String())
 }

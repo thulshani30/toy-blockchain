@@ -1,7 +1,7 @@
 package mining
 
 import (
-	"fmt"
+	"errors"
 	"strings"
 	"time"
 
@@ -9,34 +9,37 @@ import (
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/hashing"
 )
 
-func isValidHash(hash string, difficulty int) bool {
+// IsValidHash checks whether a hash satisfies the required difficulty.
+func IsValidHash(hash string, difficulty int) bool {
 	prefix := strings.Repeat("0", difficulty)
 	return strings.HasPrefix(hash, prefix)
 }
 
-func MineBlock(b block.Block, difficulty int) (block.Block, error) {
+// MineBlock performs proof-of-work mining.
+func MineBlock(b block.Block, difficulty int) (MiningResult, error) {
+
+	if difficulty < 0 {
+		return MiningResult{}, errors.New("difficulty cannot be negative")
+	}
+
 	start := time.Now()
 
-	nonce := uint64(0)
+	var attempts uint64
 
-	for {
+	for nonce := uint64(0); ; nonce++ {
+
 		b.Nonce = nonce
+		attempts++
 
-		hash, err := hashing.CalculateBlockHash(&b)
-		if err != nil {
-			return block.Block{}, err
-		}
-
+		hash := hashing.CalculateBlockHash(&b)
 		b.Hash = hash
 
-		if isValidHash(hash, difficulty) {
-			fmt.Println("Block mined!")
-			fmt.Println("Nonce:", nonce)
-			fmt.Println("Time taken:", time.Since(start))
-
-			return b, nil
+		if IsValidHash(hash, difficulty) {
+			return MiningResult{
+				Block:    b,
+				Attempts: attempts,
+				Duration: time.Since(start),
+			}, nil
 		}
-
-		nonce++
 	}
 }

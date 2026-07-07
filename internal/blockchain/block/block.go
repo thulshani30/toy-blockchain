@@ -8,10 +8,21 @@ import (
 
 // Block represents a single block in the blockchain.
 type Block struct {
-	Index        uint64                    `json:"index"`
-	Timestamp    time.Time                 `json:"timestamp"`
+	// Index is the block height in the chain.
+	Index uint64 `json:"index"`
+
+	// Timestamp records when the block was created.
+	Timestamp time.Time `json:"timestamp"`
+
+	// Transactions included in this block.
 	Transactions []transaction.Transaction `json:"transactions"`
-	PreviousHash string                    `json:"previous_hash"`
-	Nonce        uint64                    `json:"nonce"`
-	Hash         string                    `json:"hash"`
+
+	// Hash of the previous block.
+	PreviousHash string `json:"previous_hash"`
+
+	// Nonce discovered during Proof-of-Work mining.
+	Nonce uint64 `json:"nonce"`
+
+	// SHA-256 hash of this block.
+	Hash string `json:"hash"`
 }
