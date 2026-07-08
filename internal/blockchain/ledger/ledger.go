@@ -78,3 +78,15 @@ func (l *Ledger) Rebuild(blocks []block.Block) error {
 
 	return nil
 }
+
+// GetAllBalances returns a copy of all account balances.
+func (l *Ledger) GetAllBalances() map[string]float64 {
+
+	balances := make(map[string]float64)
+
+	for account, balance := range l.balances {
+		balances[account] = balance
+	}
+
+	return balances
+}

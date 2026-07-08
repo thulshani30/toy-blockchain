@@ -36,7 +36,11 @@ func main() {
 
 	logger.Info.Println("Blockchain loaded successfully")
 
-	fmt.Println("Toy Blockchain")
+	StartCLI(
+		bc,
+		*difficulty,
+		cfg.DataPath,
+	)
 	fmt.Println("----------------")
 	fmt.Println("Blocks:", len(bc.Blocks))
 	fmt.Println("Difficulty:", *difficulty)
