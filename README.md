@@ -16,28 +16,28 @@ This project demonstrates:
 
 ## Project Structure
 
-## Project Structure
-
-
+```text
 toy-blockchain/
 │
 ├── cmd/
-│ └── toy-blockchain/
-│ └── main.go
+│   └── toy-blockchain/
+│       └── main.go
 │
 ├── internal/
-│ ├── blockchain/
-│ │ ├── block/
-│ │ ├── chain/
-│ │ ├── hashing/
-│ │ ├── ledger/
-│ │ ├── mining/
-│ │ └── transaction/
-│ │
-│ ├── config/
-│ └── logger/
+│   ├── blockchain/
+│   │   ├── block/
+│   │   ├── chain/
+│   │   ├── hashing/
+│   │   ├── ledger/
+│   │   ├── mining/
+│   │   └── transaction/
+│   │
+│   ├── config/
+│   │
+│   └── logger/
 │
 └── data/
+```
 
 
 ## Run
