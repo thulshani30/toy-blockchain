@@ -14,7 +14,7 @@ import (
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/validation"
 )
 
-func StartCLI(bc *chain.Blockchain, difficulty int, dataPath string) {
+func StartCLI(bc *chain.Blockchain, difficulty int, blockSize int, dataPath string) {
 
 	reader := bufio.NewReader(os.Stdin)
 
@@ -26,11 +26,12 @@ func StartCLI(bc *chain.Blockchain, difficulty int, dataPath string) {
 		fmt.Println("=========================")
 		fmt.Println("1. View Blockchain")
 		fmt.Println("2. Add Transaction")
-		fmt.Println("3. Mine Transactions")
-		fmt.Println("4. Validate Blockchain")
-		fmt.Println("5. Faucet (Create Coinbase Transaction)")
-		fmt.Println("6. Show Balance")
-		fmt.Println("7. Exit")
+		fmt.Println("3. View Pending Transactions")
+		fmt.Println("4. Mine Transactions")
+		fmt.Println("5. Validate Blockchain")
+		fmt.Println("6. Faucet (Create Coinbase Transaction)")
+		fmt.Println("7. Show Balance")
+		fmt.Println("8. Exit")
 		fmt.Print("Select option: ")
 
 		input, _ := reader.ReadString('\n')
@@ -51,8 +52,11 @@ func StartCLI(bc *chain.Blockchain, difficulty int, dataPath string) {
 			}
 
 		case "3":
+			viewPendingTransactions(bc)
 
-			_, err := bc.MinePendingTransactions(difficulty)
+		case "4":
+
+			_, err := bc.MinePendingTransactions(difficulty, blockSize)
 
 			if err != nil {
 				fmt.Println("Mining error:", err)
@@ -60,7 +64,7 @@ func StartCLI(bc *chain.Blockchain, difficulty int, dataPath string) {
 				fmt.Println("Block mined successfully")
 			}
 
-		case "4":
+		case "5":
 
 			err := validation.ValidateChain(bc, difficulty)
 
@@ -70,13 +74,13 @@ func StartCLI(bc *chain.Blockchain, difficulty int, dataPath string) {
 				fmt.Println("Blockchain is valid")
 			}
 
-		case "5":
+		case "6":
 			faucet(reader, bc, dataPath)
 
-		case "6":
+		case "7":
 			showBalances(bc)
 
-		case "7":
+		case "8":
 			fmt.Println("Exiting...")
 			return
 
@@ -88,22 +92,46 @@ func StartCLI(bc *chain.Blockchain, difficulty int, dataPath string) {
 
 func viewBlockchain(bc *chain.Blockchain) {
 
+	if len(bc.Blocks) == 0 {
+		fmt.Println("Blockchain is empty.")
+		return
+	}
+
+	fmt.Println()
+	fmt.Println("========== TOY BLOCKCHAIN ==========")
+
 	for _, block := range bc.Blocks {
 
-		fmt.Println("----------------------")
-		fmt.Println("Index:", block.Index)
-		fmt.Println("Previous:", block.PreviousHash)
-		fmt.Println("Hash:", block.Hash)
-		fmt.Println("Transactions:")
+		fmt.Println("========================================")
+		fmt.Printf("Block #%d\n", block.Index)
+		fmt.Println("========================================")
 
-		for _, tx := range block.Transactions {
-			fmt.Printf("  %s -> %s : %.2f\n",
-				tx.Sender,
-				tx.Recipient,
-				tx.Amount,
-			)
+		fmt.Printf("Timestamp      : %s\n", block.Timestamp.Format("2006-01-02 15:04:05"))
+		fmt.Printf("Previous Hash  : %s\n", block.PreviousHash)
+		fmt.Printf("Hash           : %s\n", block.Hash)
+		fmt.Printf("Nonce          : %d\n", block.Nonce)
+
+		fmt.Println()
+		fmt.Println("Transactions")
+
+		if len(block.Transactions) == 0 {
+			fmt.Println("  None")
+		} else {
+			for i, tx := range block.Transactions {
+				fmt.Printf(
+					"  %d. %s -> %s : %.2f\n",
+					i+1,
+					tx.Sender,
+					tx.Recipient,
+					tx.Amount,
+				)
+			}
 		}
+
+		fmt.Println()
 	}
+
+	fmt.Println("========== END OF CHAIN ==========")
 }
 
 func addTransaction(reader *bufio.Reader, bc *chain.Blockchain) {
@@ -190,5 +218,28 @@ func showBalances(bc *chain.Blockchain) {
 
 	for account, balance := range balances {
 		fmt.Printf("%-15s %.2f\n", account, balance)
+	}
+}
+
+func viewPendingTransactions(bc *chain.Blockchain) {
+
+	pending := bc.GetPendingTransactions()
+
+	fmt.Println()
+	fmt.Println("========== PENDING TRANSACTIONS ==========")
+
+	if len(pending) == 0 {
+		fmt.Println("No pending transactions.")
+		return
+	}
+
+	for i, tx := range pending {
+		fmt.Printf(
+			"%d. %s -> %s : %.2f\n",
+			i+1,
+			tx.Sender,
+			tx.Recipient,
+			tx.Amount,
+		)
 	}
 }

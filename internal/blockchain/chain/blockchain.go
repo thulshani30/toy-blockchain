@@ -58,7 +58,7 @@ func (bc *Blockchain) GetLastBlock() (block.Block, error) {
 }
 
 // MinePendingTransactions mines all pending transactions into a new block.
-func (bc *Blockchain) MinePendingTransactions(difficulty int) (block.Block, error) {
+func (bc *Blockchain) MinePendingTransactions(difficulty int, blockSize int) (block.Block, error) {
 
 	bc.mu.Lock()
 	defer bc.mu.Unlock()
@@ -69,10 +69,16 @@ func (bc *Blockchain) MinePendingTransactions(difficulty int) (block.Block, erro
 
 	lastBlock := bc.Blocks[len(bc.Blocks)-1]
 
+	transactions := bc.PendingTransactions
+
+	if len(transactions) > blockSize {
+		transactions = transactions[:blockSize]
+	}
+
 	candidate := block.Block{
 		Index:        lastBlock.Index + 1,
 		Timestamp:    time.Now(),
-		Transactions: bc.PendingTransactions,
+		Transactions: transactions,
 		PreviousHash: lastBlock.Hash,
 	}
 
@@ -85,7 +91,7 @@ func (bc *Blockchain) MinePendingTransactions(difficulty int) (block.Block, erro
 	}
 
 	bc.Blocks = append(bc.Blocks, minedBlock)
-	bc.PendingTransactions = []transaction.Transaction{}
+	bc.PendingTransactions = bc.PendingTransactions[len(transactions):]
 
 	return minedBlock, nil
 }

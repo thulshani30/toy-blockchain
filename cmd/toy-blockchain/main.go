@@ -39,6 +39,7 @@ func main() {
 	StartCLI(
 		bc,
 		*difficulty,
+		cfg.BlockSize,
 		cfg.DataPath,
 	)
 	fmt.Println("----------------")

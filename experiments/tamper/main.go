@@ -19,7 +19,7 @@ func main() {
 
 	bc.AddTransaction(tx)
 
-	_, err := bc.MinePendingTransactions(2)
+	_, err := bc.MinePendingTransactions(2, 10)
 
 	if err != nil {
 		panic(err)
