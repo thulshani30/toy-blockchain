@@ -8,14 +8,27 @@ import (
 
 // AddTransaction validates and adds a transaction to the pending pool.
 func (bc *Blockchain) AddTransaction(tx transaction.Transaction) error {
-	if err := ValidatePendingTransaction(tx); err != nil {
-		return err
-	}
 
 	bc.mu.Lock()
 	defer bc.mu.Unlock()
 
-	bc.PendingTransactions = append(bc.PendingTransactions, tx)
+	if err := ValidatePendingTransaction(tx); err != nil {
+		return err
+	}
+
+	l, err := bc.BuildLedger()
+	if err != nil {
+		return err
+	}
+
+	if err := l.ValidateTransaction(tx); err != nil {
+		return err
+	}
+
+	bc.PendingTransactions = append(
+		bc.PendingTransactions,
+		tx,
+	)
 
 	return nil
 }

@@ -26,3 +26,15 @@ func TestTamperDetection(t *testing.T) {
 		t.Error("expected validation failure after tampering")
 	}
 }
+func TestBrokenPreviousHashDetection(t *testing.T) {
+
+	bc := chain.NewBlockchain()
+
+	bc.Blocks[0].PreviousHash = "invalid_previous_hash"
+
+	err := validation.ValidateChain(bc, 3)
+
+	if err == nil {
+		t.Error("expected validation failure for modified previous hash")
+	}
+}

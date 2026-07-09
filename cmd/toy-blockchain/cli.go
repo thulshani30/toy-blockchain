@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/chain"
-	"github.com/thulshani30/toy-blockchain/internal/blockchain/ledger"
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/storage"
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/transaction"
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/validation"
@@ -198,7 +197,7 @@ func faucet(reader *bufio.Reader, bc *chain.Blockchain, dataPath string) {
 
 func showBalances(bc *chain.Blockchain) {
 
-	l, err := ledger.BuildLedger(bc)
+	l, err := bc.BuildLedger()
 
 	if err != nil {
 		fmt.Println("Failed to calculate balances:", err)

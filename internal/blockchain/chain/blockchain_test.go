@@ -1,38 +1,71 @@
-package chain_test
+package chain
 
 import (
 	"testing"
 
-	"github.com/thulshani30/toy-blockchain/internal/blockchain/chain"
-	"github.com/thulshani30/toy-blockchain/internal/blockchain/validation"
+	"github.com/thulshani30/toy-blockchain/internal/blockchain/transaction"
 )
 
-func TestGenesisBlockCreation(t *testing.T) {
+func TestGenesisBlock(t *testing.T) {
 
-	bc := chain.NewBlockchain()
+	bc := NewBlockchain()
 
 	if len(bc.Blocks) != 1 {
-		t.Fatalf("expected blockchain to contain genesis block")
+		t.Fatalf("expected 1 genesis block, got %d", len(bc.Blocks))
 	}
 
 	genesis := bc.Blocks[0]
 
 	if genesis.Index != 0 {
-		t.Errorf("expected genesis index 0, got %d", genesis.Index)
+		t.Fatalf("expected genesis index 0, got %d", genesis.Index)
 	}
 
-	if genesis.PreviousHash != chain.GenesisPreviousHash {
-		t.Errorf("invalid genesis previous hash")
+	if genesis.PreviousHash != GenesisPreviousHash {
+		t.Fatalf("incorrect genesis previous hash")
+	}
+
+	if genesis.Hash == "" {
+		t.Fatal("genesis hash should not be empty")
 	}
 }
 
-func TestValidGenesisChain(t *testing.T) {
+func TestAddTransaction(t *testing.T) {
 
-	bc := chain.NewBlockchain()
+	bc := NewBlockchain()
 
-	err := validation.ValidateChain(bc, 3)
+	tx := transaction.Transaction{
+		Sender:    transaction.CoinbaseAccount,
+		Recipient: "Alice",
+		Amount:    100,
+	}
+
+	err := bc.AddTransaction(tx)
 
 	if err != nil {
-		t.Errorf("expected valid chain, got %v", err)
+		t.Fatalf("failed to add transaction: %v", err)
+	}
+
+	if len(bc.PendingTransactions) != 1 {
+		t.Fatalf(
+			"expected 1 pending transaction, got %d",
+			len(bc.PendingTransactions),
+		)
+	}
+}
+
+func TestRejectInsufficientBalance(t *testing.T) {
+
+	bc := NewBlockchain()
+
+	tx := transaction.Transaction{
+		Sender:    "Alice",
+		Recipient: "Bob",
+		Amount:    50,
+	}
+
+	err := bc.AddTransaction(tx)
+
+	if err == nil {
+		t.Fatal("expected insufficient balance error")
 	}
 }
