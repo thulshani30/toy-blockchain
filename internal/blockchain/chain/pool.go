@@ -21,6 +21,12 @@ func (bc *Blockchain) AddTransaction(tx transaction.Transaction) error {
 		return err
 	}
 
+	for _, pendingTx := range bc.PendingTransactions {
+		if err := l.ApplyTransaction(pendingTx); err != nil {
+			return err
+		}
+	}
+
 	if err := l.ValidateTransaction(tx); err != nil {
 		return err
 	}
