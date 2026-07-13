@@ -1,10 +1,10 @@
 package hashing
 
 import (
+	"bytes"
 	"crypto/sha256"
+	"encoding/binary"
 	"encoding/hex"
-	"fmt"
-	"strings"
 
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/block"
 )
@@ -30,31 +30,35 @@ func CalculateBlockHash(b *block.Block) string {
 //
 // The Hash field is intentionally excluded because it is the value being calculated.
 func serializeBlock(b *block.Block) []byte {
-	var builder strings.Builder
+	var buf bytes.Buffer
 
 	// Block index
-	fmt.Fprintf(&builder, "%d|", b.Index)
+	_ = binary.Write(&buf, binary.BigEndian, int64(b.Index))
 
 	// Timestamp
-	fmt.Fprintf(&builder, "%d|", b.Timestamp.Unix())
+	_ = binary.Write(&buf, binary.BigEndian, b.Timestamp.Unix())
+
+	// Number of transactions
+	_ = binary.Write(&buf, binary.BigEndian, uint32(len(b.Transactions)))
 
 	// Transactions
 	for _, tx := range b.Transactions {
-		fmt.Fprintf(
-			&builder,
-			"%s|%s|%.8f|",
-			tx.Sender,
-			tx.Recipient,
-			tx.Amount,
-		)
+		writeString(&buf, tx.Sender)
+		writeString(&buf, tx.Recipient)
+
+		_ = binary.Write(&buf, binary.BigEndian, tx.Amount)
 	}
 
-	// Previous block hash
-	builder.WriteString(b.PreviousHash)
-	builder.WriteString("|")
+	// Previous hash
+	writeString(&buf, b.PreviousHash)
 
-	// Proof-of-work nonce
-	fmt.Fprintf(&builder, "%d", b.Nonce)
+	// Nonce
+	_ = binary.Write(&buf, binary.BigEndian, int64(b.Nonce))
 
-	return []byte(builder.String())
+	return buf.Bytes()
+}
+
+func writeString(buf *bytes.Buffer, s string) {
+	_ = binary.Write(buf, binary.BigEndian, uint32(len(s)))
+	buf.WriteString(s)
 }
