@@ -6,6 +6,7 @@ import (
 
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/chain"
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/hashing"
+	"github.com/thulshani30/toy-blockchain/internal/blockchain/ledger"
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/mining"
 )
 
@@ -15,6 +16,8 @@ func ValidateChain(bc *chain.Blockchain, difficulty int) error {
 	if len(bc.Blocks) == 0 {
 		return errors.New("blockchain is empty")
 	}
+
+	l := ledger.NewLedger()
 
 	for i, currentBlock := range bc.Blocks {
 
@@ -67,6 +70,19 @@ func ValidateChain(bc *chain.Blockchain, difficulty int) error {
 				"block %d timestamp is earlier than previous block",
 				i,
 			)
+		}
+
+		// Validate all transactions in the current block.
+		for j, tx := range currentBlock.Transactions {
+
+			if err := l.ApplyTransaction(tx); err != nil {
+				return fmt.Errorf(
+					"block %d transaction %d invalid: %w",
+					i,
+					j,
+					err,
+				)
+			}
 		}
 	}
 
