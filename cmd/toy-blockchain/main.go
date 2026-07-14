@@ -21,9 +21,21 @@ func main() {
 		"mining difficulty",
 	)
 
+	blockSize := flag.Int(
+		"block-size",
+		cfg.BlockSize,
+		"maximum transactions per block",
+	)
+
+	dataPath := flag.String(
+		"data",
+		cfg.DataPath,
+		"blockchain data file path",
+	)
+
 	flag.Parse()
 
-	bc, err := storage.LoadBlockchain(cfg.DataPath)
+	bc, err := storage.LoadBlockchain(*dataPath)
 	if err != nil {
 		logger.Error.Fatal(err)
 	}
@@ -39,16 +51,16 @@ func main() {
 	StartCLI(
 		bc,
 		*difficulty,
-		cfg.BlockSize,
-		cfg.DataPath,
+		*blockSize,
+		*dataPath,
 	)
 	fmt.Println("----------------")
 	fmt.Println("Blocks:", len(bc.Blocks))
 	fmt.Println("Difficulty:", *difficulty)
-	fmt.Println("Block size:", cfg.BlockSize)
-	fmt.Println("Data path:", cfg.DataPath)
+	fmt.Println("Block size:", *blockSize)
+	fmt.Println("Data path:", *dataPath)
 
-	if err := storage.SaveBlockchain(cfg.DataPath, bc); err != nil {
+	if err := storage.SaveBlockchain(*dataPath, bc); err != nil {
 		logger.Error.Fatal(err)
 	}
 
