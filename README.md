@@ -68,6 +68,13 @@ Interactive CLI supporting:
 - Create faucet transactions
 - View account balances
 
+## Additional Features
+
+- Configurable mining difficulty
+- Configurable block transaction limit
+- Configurable blockchain storage path
+- Automatic blockchain persistence
+
 ---
 
 # Architecture
@@ -430,6 +437,30 @@ ok   github.com/thulshani30/toy-blockchain/internal/blockchain/validation
 ```
 
 ---
+## Configuration Options
+
+The Toy Blockchain CLI supports configurable parameters through command-line flags.
+
+### Available Flags
+
+| Flag | Description | Default Value |
+|------|-------------|---------------|
+| `-difficulty` | Mining difficulty (number of leading zeros required in block hash) | `3` |
+| `-block-size` | Maximum number of transactions allowed per block | `10` |
+| `-data` | Blockchain storage file path | `data/blockchain.json` |
+
+### Example Usage
+
+Run the blockchain with default configuration:
+
+```bash
+go run ./cmd/toy-blockchain
+```
+Run with custom parameters
+
+```bash
+go run ./cmd/toy-blockchain -difficulty=4 -block-size=5 -data="mychain.json"
+```
 
 # Future Improvements
 

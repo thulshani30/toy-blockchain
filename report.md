@@ -115,30 +115,41 @@ The genesis block is deterministic and always begins the blockchain with a fixed
 
 ## 4.2 Hashing Scheme
 
-The project uses the SHA-256 cryptographic hash function.
+The project uses the SHA-256 cryptographic hash function to generate block hashes.
 
-The block hash is calculated using the following fields in order:
+Before hashing, block data is converted into a deterministic binary representation using length-prefixed encoding. This avoids ambiguity that can occur with simple string concatenation or delimiter-based serialization.
 
-1. Block index
-2. Timestamp
-3. Transactions
-4. Previous hash
-5. Nonce
+The fields included in the hash calculation are serialized in the following order:
 
-The block hash itself is intentionally excluded from the calculation. This ensures deterministic hashing, meaning that hashing identical block data always produces exactly the same hash.
+1. Block index (binary encoded integer)
+2. Timestamp (Unix timestamp)
+3. Number of transactions
+4. Transaction details:
+   - Sender (length-prefixed string)
+   - Recipient (length-prefixed string)
+   - Amount (binary encoded floating-point value)
+5. Previous block hash (length-prefixed string)
+6. Nonce (binary encoded integer)
+
+The block's own hash field is intentionally excluded from the calculation because it is the value being generated.
+
+Using deterministic binary serialization ensures that identical blocks always produce the same SHA-256 hash while preventing serialization ambiguity and improving the reliability of the hashing process.
 
 ---
 
 ## 4.3 Validation Process
 
-The blockchain validation routine verifies the integrity of every block by performing several checks:
+The blockchain validation routine verifies the integrity and consistency of the entire blockchain by performing several checks:
 
-* The stored hash matches the recalculated hash.
-* The previous hash matches the hash of the previous block.
-* The block satisfies the configured proof-of-work difficulty.
-* Block ordering remains consistent.
+* The stored block hash matches the recalculated SHA-256 hash.
+* The previous hash reference matches the hash of the preceding block.
+* The block satisfies the configured proof-of-work difficulty requirement.
+* Block indexes and ordering remain consistent.
+* Timestamps maintain a valid chronological order.
+* All transactions are replayed through the ledger to verify account balance consistency.
+* Transactions that attempt invalid operations, such as spending more than the available balance, are rejected.
 
-If any of these checks fail, validation immediately reports the first offending block and the blockchain is considered invalid.
+If any validation check fails, the routine immediately reports the first offending block and transaction (if applicable), and the blockchain is considered invalid.
 
 ---
 
