@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/chain"
+	"github.com/thulshani30/toy-blockchain/internal/blockchain/crypto"
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/storage"
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/transaction"
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/validation"
@@ -151,10 +152,27 @@ func addTransaction(reader *bufio.Reader, bc *chain.Blockchain) {
 		return
 	}
 
+	wallet, err := crypto.NewWallet()
+
+	if err != nil {
+		fmt.Println("Wallet creation failed:", err)
+		return
+	}
+
 	tx := transaction.Transaction{
 		Sender:    strings.TrimSpace(sender),
 		Recipient: strings.TrimSpace(recipient),
 		Amount:    amount,
+	}
+
+	err = crypto.SignTransaction(
+		&tx,
+		wallet.PrivateKey,
+	)
+
+	if err != nil {
+		fmt.Println("Transaction signing failed:", err)
+		return
 	}
 
 	err = bc.AddTransaction(tx)

@@ -10,6 +10,9 @@ type Transaction struct {
 	Sender    string  `json:"sender"`
 	Recipient string  `json:"recipient"`
 	Amount    float64 `json:"amount"`
+
+	PublicKey string `json:"public+key"`
+	Signature string `json:"signature"`
 }
 
 // New creates a standard transaction.

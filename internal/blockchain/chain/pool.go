@@ -3,6 +3,7 @@ package chain
 import (
 	"errors"
 
+	"github.com/thulshani30/toy-blockchain/internal/blockchain/crypto"
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/transaction"
 )
 
@@ -14,6 +15,15 @@ func (bc *Blockchain) AddTransaction(tx transaction.Transaction) error {
 
 	if err := ValidatePendingTransaction(tx); err != nil {
 		return err
+	}
+
+	// Verify digital signature
+	if tx.Sender != transaction.CoinbaseAccount {
+
+		if !crypto.VerifyTransaction(tx) {
+			return errors.New("invalid transaction signature")
+		}
+
 	}
 
 	l, err := bc.BuildLedger()
