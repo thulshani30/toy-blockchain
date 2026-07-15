@@ -1,8 +1,11 @@
 package mining
 
 import (
+	"context"
 	"errors"
+	"runtime"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/block"
@@ -24,22 +27,61 @@ func MineBlock(b block.Block, difficulty int) (MiningResult, error) {
 
 	start := time.Now()
 
-	var attempts uint64
+	workers := runtime.NumCPU()
 
-	for nonce := uint64(0); ; nonce++ {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-		b.Nonce = nonce
-		attempts++
+	resultCh := make(chan MiningResult, 1)
 
-		hash := hashing.CalculateBlockHash(&b)
-		b.Hash = hash
+	var wg sync.WaitGroup
 
-		if IsValidHash(hash, difficulty) {
-			return MiningResult{
-				Block:    b,
-				Attempts: attempts,
-				Duration: time.Since(start),
-			}, nil
-		}
+	for worker := 0; worker < workers; worker++ {
+
+		wg.Add(1)
+
+		go func(startNonce uint64) {
+			defer wg.Done()
+
+			var attempts uint64
+
+			candidate := b
+
+			for nonce := startNonce; ; nonce += uint64(workers) {
+
+				select {
+				case <-ctx.Done():
+					return
+				default:
+				}
+
+				candidate.Nonce = nonce
+				attempts++
+
+				hash := hashing.CalculateBlockHash(&candidate)
+				candidate.Hash = hash
+
+				if IsValidHash(hash, difficulty) {
+
+					select {
+					case resultCh <- MiningResult{
+						Block:    candidate,
+						Attempts: attempts,
+						Duration: time.Since(start),
+					}:
+						cancel()
+					default:
+					}
+
+					return
+				}
+			}
+		}(uint64(worker))
 	}
+
+	result := <-resultCh
+
+	wg.Wait()
+
+	return result, nil
 }
