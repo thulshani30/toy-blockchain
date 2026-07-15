@@ -24,7 +24,7 @@ func CalculateBlockHash(b *block.Block) string {
 // Hashing order:
 // 1. Index
 // 2. Timestamp (Unix seconds)
-// 3. Transactions (sender, recipient, amount)
+// 3. Merkle Root
 // 4. Previous hash
 // 5. Nonce
 //
@@ -38,16 +38,8 @@ func serializeBlock(b *block.Block) []byte {
 	// Timestamp
 	_ = binary.Write(&buf, binary.BigEndian, b.Timestamp.Unix())
 
-	// Number of transactions
-	_ = binary.Write(&buf, binary.BigEndian, uint32(len(b.Transactions)))
-
-	// Transactions
-	for _, tx := range b.Transactions {
-		writeString(&buf, tx.Sender)
-		writeString(&buf, tx.Recipient)
-
-		_ = binary.Write(&buf, binary.BigEndian, tx.Amount)
-	}
+	// Merkle Root
+	writeString(&buf, b.MerkleRoot)
 
 	// Previous hash
 	writeString(&buf, b.PreviousHash)

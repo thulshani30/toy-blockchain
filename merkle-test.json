@@ -1,0 +1,48 @@
+{
+  "blocks": [
+    {
+      "index": 0,
+      "timestamp": "1970-01-01T05:30:00+05:30",
+      "transactions": [],
+      "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "nonce": 0,
+      "merkle_root": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "hash": "42c912c64eec3cf8c0ee6414e4e118807d466bf0e170d1c6d5b0c3a05dbf331c"
+    },
+    {
+      "index": 1,
+      "timestamp": "2026-07-15T10:42:35.0527488+05:30",
+      "transactions": [
+        {
+          "sender": "COINBASE",
+          "recipient": "Alice",
+          "amount": 100,
+          "public+key": "",
+          "signature": ""
+        }
+      ],
+      "previous_hash": "42c912c64eec3cf8c0ee6414e4e118807d466bf0e170d1c6d5b0c3a05dbf331c",
+      "nonce": 373,
+      "merkle_root": "6ae1d0068398a6ad0e55307f692c749af8b2b938fe1c5fb1abf3c4ac4baa0ea3",
+      "hash": "000ccbef8216d6cbf9e28be7c5334cd183338541fe29ab88815d63e143d2583d"
+    },
+    {
+      "index": 2,
+      "timestamp": "2026-07-15T10:42:59.020648+05:30",
+      "transactions": [
+        {
+          "sender": "Alice",
+          "recipient": "Bob",
+          "amount": 20,
+          "public+key": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEY03pE9fZ4TT5IG/LdWpTutj7a9Oj\nLGXn62jUWGNqR0so7Meu8je2AADElkQmMZvaeesFFAH5/ieWBjTICh7CwA==\n-----END PUBLIC KEY-----\n",
+          "signature": "4ebeb3436b786dc60429a01d3183a012a496cf5b07f506edd9bac2e167f8e8c7bac1109ad05688fe32e6b1829a0af83f2d0c3974a89c0e8aadd3ae996f8e2f7b"
+        }
+      ],
+      "previous_hash": "000ccbef8216d6cbf9e28be7c5334cd183338541fe29ab88815d63e143d2583d",
+      "nonce": 1487,
+      "merkle_root": "a33c86c07c8a1bca384f1ab3e9552a519c31f9939153d20fe4d30aba18d425ed",
+      "hash": "000f365ddab6d40b221d861674d8014a020bc4e5383ad9136237ff0c531a1bef"
+    }
+  ],
+  "pending_transactions": []
+}

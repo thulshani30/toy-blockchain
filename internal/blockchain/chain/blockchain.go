@@ -7,6 +7,7 @@ import (
 
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/block"
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/hashing"
+	"github.com/thulshani30/toy-blockchain/internal/blockchain/merkle"
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/mining"
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/transaction"
 )
@@ -22,12 +23,15 @@ type Blockchain struct {
 
 // NewGenesisBlock creates the deterministic genesis block.
 func NewGenesisBlock() block.Block {
+	transactions := []transaction.Transaction{}
+
 	genesis := block.Block{
 		Index:        0,
 		Timestamp:    time.Unix(0, 0),
-		Transactions: []transaction.Transaction{},
+		Transactions: transactions,
 		PreviousHash: GenesisPreviousHash,
 		Nonce:        0,
+		MerkleRoot:   merkle.CalculateMerkleRoot(transactions),
 	}
 
 	genesis.Hash = hashing.CalculateBlockHash(&genesis)
@@ -80,6 +84,7 @@ func (bc *Blockchain) MinePendingTransactions(difficulty int, blockSize int) (bl
 		Timestamp:    time.Now(),
 		Transactions: transactions,
 		PreviousHash: lastBlock.Hash,
+		MerkleRoot:   merkle.CalculateMerkleRoot(transactions),
 	}
 
 	result, err := mining.MineBlock(candidate, difficulty)

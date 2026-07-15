@@ -23,6 +23,9 @@ type Block struct {
 	// Nonce discovered during Proof-of-Work mining.
 	Nonce uint64 `json:"nonce"`
 
+	// Merkle root of all transactions in this block.
+	MerkleRoot string `json:"merkle_root"`
+
 	// SHA-256 hash of this block.
 	Hash string `json:"hash"`
 }

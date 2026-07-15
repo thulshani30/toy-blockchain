@@ -7,6 +7,7 @@ import (
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/chain"
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/hashing"
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/ledger"
+	"github.com/thulshani30/toy-blockchain/internal/blockchain/merkle"
 	"github.com/thulshani30/toy-blockchain/internal/blockchain/mining"
 )
 
@@ -30,6 +31,18 @@ func ValidateChain(bc *chain.Blockchain, difficulty int) error {
 				i,
 				currentBlock.Hash,
 				calculatedHash,
+			)
+		}
+
+		// Check Merkle root integrity
+		calculatedMerkleRoot := merkle.CalculateMerkleRoot(
+			currentBlock.Transactions,
+		)
+
+		if calculatedMerkleRoot != currentBlock.MerkleRoot {
+			return fmt.Errorf(
+				"block %d merkle root mismatch",
+				i,
 			)
 		}
 

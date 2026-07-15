@@ -108,6 +108,7 @@ func viewBlockchain(bc *chain.Blockchain) {
 
 		fmt.Printf("Timestamp      : %s\n", block.Timestamp.Format("2006-01-02 15:04:05"))
 		fmt.Printf("Previous Hash  : %s\n", block.PreviousHash)
+		fmt.Printf("Merkle Root    : %s\n", block.MerkleRoot)
 		fmt.Printf("Hash           : %s\n", block.Hash)
 		fmt.Printf("Nonce          : %d\n", block.Nonce)
 
