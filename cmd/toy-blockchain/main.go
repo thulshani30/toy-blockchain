@@ -56,7 +56,7 @@ func main() {
 	)
 	fmt.Println("----------------")
 	fmt.Println("Blocks:", len(bc.Blocks))
-	fmt.Println("Difficulty:", *difficulty)
+	fmt.Println("Difficulty:", bc.CurrentDifficulty)
 	fmt.Println("Block size:", *blockSize)
 	fmt.Println("Data path:", *dataPath)
 

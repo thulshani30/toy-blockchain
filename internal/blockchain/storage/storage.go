@@ -74,6 +74,10 @@ func LoadBlockchain(path string) (*chain.Blockchain, error) {
 		return recovered, nil
 	}
 
+	if bc.CurrentDifficulty == 0 {
+		bc.CurrentDifficulty = 3
+	}
+
 	return &bc, nil
 }
 

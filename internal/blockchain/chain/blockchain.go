@@ -19,6 +19,7 @@ type Blockchain struct {
 	mu                  sync.RWMutex
 	Blocks              []block.Block             `json:"blocks"`
 	PendingTransactions []transaction.Transaction `json:"pending_transactions"`
+	CurrentDifficulty   int                       `json:"current_difficulty"`
 }
 
 // NewGenesisBlock creates the deterministic genesis block.
@@ -46,6 +47,7 @@ func NewBlockchain() *Blockchain {
 			NewGenesisBlock(),
 		},
 		PendingTransactions: []transaction.Transaction{},
+		CurrentDifficulty:   3,
 	}
 }
 
@@ -73,6 +75,12 @@ func (bc *Blockchain) MinePendingTransactions(difficulty int, blockSize int) (bl
 
 	lastBlock := bc.Blocks[len(bc.Blocks)-1]
 
+	currentDifficulty := bc.CurrentDifficulty
+
+	if currentDifficulty == 0 {
+		currentDifficulty = difficulty
+	}
+
 	transactions := bc.PendingTransactions
 
 	if len(transactions) > blockSize {
@@ -87,7 +95,7 @@ func (bc *Blockchain) MinePendingTransactions(difficulty int, blockSize int) (bl
 		MerkleRoot:   merkle.CalculateMerkleRoot(transactions),
 	}
 
-	result, err := mining.MineBlock(candidate, difficulty)
+	result, err := mining.MineBlock(candidate, currentDifficulty)
 
 	minedBlock := result.Block
 
@@ -97,6 +105,14 @@ func (bc *Blockchain) MinePendingTransactions(difficulty int, blockSize int) (bl
 
 	bc.Blocks = append(bc.Blocks, minedBlock)
 	bc.PendingTransactions = bc.PendingTransactions[len(transactions):]
+
+	if lastBlock.Index > 0 {
+		bc.CurrentDifficulty = mining.AdjustDifficulty(
+			currentDifficulty,
+			lastBlock.Timestamp,
+			minedBlock.Timestamp,
+		)
+	}
 
 	return minedBlock, nil
 }

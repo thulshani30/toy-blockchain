@@ -812,3 +812,221 @@ Blockchain is valid
 Concurrent mining introduces parallel Proof-of-Work without changing the blockchain's external behavior.
 
 The blockchain still produces exactly one valid block for a set of transactions, but the nonce search is distributed across multiple goroutines, improving performance and demonstrating Go's native concurrency features.
+
+---
+
+# 4. Difficulty Retargeting
+
+## Overview
+
+Difficulty retargeting automatically adjusts the Proof-of-Work difficulty based on the time required to mine previous blocks.
+
+The purpose of this feature is to maintain a stable block generation time even when mining speed changes.
+
+---
+
+## Implementation Details
+
+A target block time is defined:
+
+Target Block Time = 10 seconds
+
+After every successful mining operation, the blockchain compares the timestamp difference between the previous block and the newly mined block.
+
+Mining time is calculated as:
+
+Mining Time = Current Block Timestamp - Previous Block Timestamp
+
+The calculated mining time is used to decide whether the difficulty should increase, decrease, or remain unchanged.
+
+---
+
+## Difficulty Adjustment Rules
+
+| Condition                           | Action                    |
+| ----------------------------------- | ------------------------- |
+| Block mined faster than target time | Increase difficulty       |
+| Block mined around target time      | Keep difficulty unchanged |
+| Block mined slower than target time | Decrease difficulty       |
+
+Example:
+
+Previous Difficulty: 3
+
+Block mined quickly
+
+↓
+
+New Difficulty: 4
+
+Example:
+
+Previous Difficulty: 3
+
+Block mined slowly
+
+↓
+
+New Difficulty: 2
+
+---
+
+## Implementation Changes
+
+A new field was added to the Blockchain structure:
+
+```go
+CurrentDifficulty int
+```
+
+This field stores the current mining difficulty and is used for future block mining.
+
+Previously, the mining difficulty was always provided as a fixed parameter.
+
+After implementing difficulty retargeting, the blockchain dynamically updates and stores the difficulty value.
+
+---
+
+## Difficulty Adjustment Function
+
+A new function was added in the mining package:
+
+```go
+AdjustDifficulty(
+    currentDifficulty,
+    previousBlockTime,
+    currentBlockTime,
+)
+```
+
+The function performs the following steps:
+
+1. Calculates the time difference between the previous and current block.
+2. Compares the mining time with the target block time.
+3. Increases difficulty if blocks are mined too quickly.
+4. Decreases difficulty if blocks are mined too slowly.
+5. Returns the updated difficulty value.
+
+---
+
+## Genesis Block Handling
+
+The genesis block is excluded from difficulty adjustment.
+
+The genesis block has a fixed timestamp:
+
+1970-01-01 00:00:00
+
+Using the genesis block for difficulty calculation would produce an incorrect mining duration.
+
+Difficulty adjustment starts only after actual mined blocks are added to the blockchain.
+
+---
+
+## Persistence
+
+The current difficulty value is stored together with blockchain data.
+
+When the blockchain is loaded:
+
+* The existing difficulty value is restored.
+* Older blockchain files without the difficulty field are assigned the default difficulty value.
+
+---
+
+## How To Test
+
+### 1. Start the Blockchain
+
+```bash
+go run ./cmd/toy-blockchain
+```
+
+---
+
+### 2. Create Transactions
+
+Use:
+
+```
+6. Faucet (Create Coinbase Transaction)
+```
+
+Example:
+
+```
+Recipient: Alice
+Amount: 100
+```
+
+---
+
+### 3. Mine Transactions
+
+Select:
+
+```
+4. Mine Transactions
+```
+
+The block is mined using the current difficulty.
+
+---
+
+### 4. View Blockchain
+
+Select:
+
+```
+1. View Blockchain
+```
+
+Example output:
+
+```
+Current Difficulty: 3
+```
+
+The mined block hash should satisfy the current difficulty.
+
+Example:
+
+```
+Difficulty: 3
+
+Hash:
+000aa0b59720d5701dfb235368a9154ce51392f666d977dfb5900650eb5e85ad
+```
+
+The hash starts with three zeros, which satisfies Proof-of-Work difficulty 3.
+
+---
+
+### 5. Validate Blockchain
+
+Select:
+
+```
+5. Validate Blockchain
+```
+
+Expected output:
+
+```
+Blockchain is valid
+```
+
+---
+
+## Summary
+
+Implemented difficulty retargeting:
+
+* Automatic difficulty adjustment
+* Target block time comparison
+* Dynamic Proof-of-Work difficulty
+* Difficulty persistence
+* Genesis block protection
+* Integration with mining process
+
+This allows the blockchain to automatically adapt its mining difficulty according to block creation speed.

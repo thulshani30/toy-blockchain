@@ -56,7 +56,7 @@ func StartCLI(bc *chain.Blockchain, difficulty int, blockSize int, dataPath stri
 
 		case "4":
 
-			_, err := bc.MinePendingTransactions(difficulty, blockSize)
+			_, err := bc.MinePendingTransactions(bc.CurrentDifficulty, blockSize)
 
 			if err != nil {
 				fmt.Println("Mining error:", err)
@@ -99,6 +99,7 @@ func viewBlockchain(bc *chain.Blockchain) {
 
 	fmt.Println()
 	fmt.Println("========== TOY BLOCKCHAIN ==========")
+	fmt.Printf("Current Difficulty: %d\n", bc.CurrentDifficulty)
 
 	for _, block := range bc.Blocks {
 
