@@ -127,3 +127,16 @@ func (bc *Blockchain) Faucet(recipient string, amount float64) error {
 
 	return bc.AddTransaction(tx)
 }
+
+// ReplaceChain replaces the current chain with a longer valid chain.
+func (bc *Blockchain) ReplaceChain(newChain *Blockchain) {
+
+	bc.mu.Lock()
+	defer bc.mu.Unlock()
+
+	if len(newChain.Blocks) > len(bc.Blocks) {
+		bc.Blocks = newChain.Blocks
+		bc.PendingTransactions = newChain.PendingTransactions
+		bc.CurrentDifficulty = newChain.CurrentDifficulty
+	}
+}
